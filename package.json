@@ -9,5 +9,8 @@
         "@types/react-dom": "18.2.7",
         "@yandex/ymaps3-types": "^1.0.15731128",
         "typescript": "5.2.2"
+    },
+       "scripts": {
+        "start": "react-scripts start"
     }
 }
