@@ -1,0 +1,13 @@
+{
+    "dependencies": {
+        "react": "18.2.0",
+        "react-dom": "18.2.0",
+        "vue": "3.3.4"
+    },
+    "devDependencies": {
+        "@types/react": "18.2.21",
+        "@types/react-dom": "18.2.7",
+        "@yandex/ymaps3-types": "^1.0.15731128",
+        "typescript": "5.2.2"
+    }
+}
