@@ -1,117 +1,213 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Version selection</title>
-        <style>
-            :root {
-                --color-grad1: #a5a5a5;
-                --color-grad2: #dcdcdc;
-                --color-prim: #474a50;
-            }
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+    <script crossorigin src="https://cdn.jsdelivr.net/npm/@babel/standalone@7/babel.min.js"></script>
 
-            * {
-                box-sizing: border-radius;
-                font-family: 'Rubik', sans-serif;
-            }
-            body {
-                width: 100vw;
-                height: 100vh;
-                margin: 0;
-            }
-            .container {
-                border: 1px solid black;
-                width: 100%;
-                height: 100%;
+    <!-- To make the map appear, you must add your apikey -->
+    <script src="https://api-maps.yandex.ru/v3/?apikey=3032d49d-9e33-4e64-a8c7-eefa81f1a978&lang=en_US&callback=ymapsCallback" type="text/javascript"></script>
 
-                display: flex;
-                justify-content: center;
-                align-items: center;
+    <script
+      data-plugins="transform-modules-umd"
+      data-presets="react, typescript"
+      type="text/babel"
+      src="./common.ts"
+    ></script>
+    <script
+      data-plugins="transform-modules-umd"
+      data-presets="react, typescript"
+      type="text/babel"
+      src="../variables.ts"
+    ></script>
+    <script data-plugins="transform-modules-umd" data-presets="typescript" type="text/babel">
+      import {FIRST_MARKER_PROPS, LOCATION, SECOND_MARKER_PROPS} from '../variables';
+      import {InfoMessage} from './common';
 
-                background: linear-gradient(180deg, var(--color-grad1), var(--color-grad2));
-            }
+      window.map = null;
 
-            .card {
-                width: 100%;
-                max-width: 450px;
-                margin: 20px;
+      main();
+      async function main() {
+        // Waiting for all api elements to be loaded
+        await ymaps3.ready;
+        const {YMap, YMapDefaultSchemeLayer, YMapDefaultFeaturesLayer, YMapControls} = ymaps3;
 
-                background: #fffffe;
-                border-top: 15px solid var(--color-prim);
-                border-radius: 15px;
+        // Import the package to add a default marker
+        const {YMapDefaultMarker} = await ymaps3.import('@yandex/ymaps3-default-ui-theme');
 
-                box-shadow: 0px 4px 8px 4px #00000033;
-            }
+        let popupWithImage = null;
+        let popupWithButtons = null;
 
-            .card__header p {
-                padding: 5px 20px;
-                margin: 10px;
-                color: var(--color-prim);
-                font-weight: bold;
-                font-size: 24px;
-            }
+        // Create a custom popup
+        const PopupWithImage = () => {
+          const popupElement = document.createElement('div');
+          popupElement.classList.add('popup');
 
-            .card__header hr {
-                width: 55%;
-                margin: 0px 30px;
-                border: 1.5px solid var(--color-prim);
-            }
+          const imageElement = document.createElement('img');
+          imageElement.src = '../waves.png';
+          imageElement.alt = 'waves';
+          imageElement.classList.add('image');
 
-            .card__body {
-                padding: 10px;
-                margin: 10px;
+          const popupContentElement = document.createElement('div');
+          popupContentElement.classList.add('popup__content');
 
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-            }
+          const popupElementText = document.createElement('div');
+          popupElementText.classList.add('popup__text');
 
-            .card__content {
-                color: inherit;
-                text-decoration: none;
-                cursor: pointer;
+          const popupElementTextTitle = document.createElement('div');
+          popupElementTextTitle.classList.add('popup__text_title');
+          popupElementTextTitle.textContent = 'Title of that pop up';
+          popupElementText.appendChild(popupElementTextTitle);
 
-                padding: 10px 15px;
+          const popupElementTextContent = document.createElement('div');
+          popupElementTextContent.classList.add('popup__text_content');
+          popupElementTextContent.textContent =
+            'Some useful information about a place. You can add whatever you want: pictures, buttons, different headings.';
+          popupElementText.appendChild(popupElementTextContent);
 
-                display: flex;
-                justify-content: space-between;
-                gap: 10px;
+          const buttonElement = document.createElement('button');
+          buttonElement.onclick = () => {
+            popupWithImage.update({
+              popup: {
+                show: false
+              }
+            });
+          };
+          buttonElement.classList.add('button');
+          buttonElement.textContent = 'Close';
 
-                font-size: 18px;
+          popupContentElement.appendChild(imageElement);
+          popupContentElement.appendChild(popupElementText);
 
-                border: 1px solid transparent;
-                border-radius: 15px;
-                transition: border-color 0.2s;
-            }
+          popupElement.appendChild(popupContentElement);
+          popupElement.appendChild(buttonElement);
 
-            .card__content:hover {
-                border-color: var(--color-prim);
-            }
+          return popupElement;
+        };
 
-            .card__content span::first-letter {
-                text-transform: uppercase;
-            }
+        // Create a custom popup
+        const PopupWithButtons = () => {
+          const popupElement = document.createElement('div');
+          popupElement.classList.add('popup', 'second_variant');
 
-            .card__content i {
-                font-style: normal;
-                color: var(--color-prim);
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="card">
-                <div class="card__header">
-                    <p>Choose example version</p>
-                    <hr />
-                </div>
-                <div class="card__body">
-<a href='react/index.html' class="card__content"><span>react</span><i>&#9658;</i></a>
-<a href='vanilla/index.html' class="card__content"><span>vanilla</span><i>&#9658;</i></a>
-<a href='vue/index.html' class="card__content"><span>vue</span><i>&#9658;</i></a>
-</div>
-            </div>
-        </div>
-    </body>
+          const popupElementText = document.createElement('div');
+          popupElementText.classList.add('popup__text');
+
+          const popupElementTextTitle = document.createElement('div');
+          popupElementTextTitle.classList.add('popup__text_title');
+          popupElementTextTitle.textContent = 'Title of that pop up';
+          popupElementText.appendChild(popupElementTextTitle);
+
+          const popupElementTextContent = document.createElement('div');
+          popupElementTextContent.classList.add('popup__text_content');
+          popupElementTextContent.textContent =
+            'Some useful information about a place. You can add whatever you want: pictures, buttons, different headings.';
+          popupElementText.appendChild(popupElementTextContent);
+
+          const popupButtonsElement = document.createElement('div');
+          popupButtonsElement.classList.add('popup__buttons');
+
+          const popupButtonsBlockElement = document.createElement('div');
+          popupButtonsBlockElement.classList.add('popup__buttons__block');
+
+          const buttonElementFirst = document.createElement('button');
+          buttonElementFirst.classList.add('button');
+          buttonElementFirst.textContent = 'Button 1';
+          buttonElementFirst.onclick = () => {
+            alert('Clicked!');
+          };
+
+          const buttonElementSecond = document.createElement('button');
+          buttonElementSecond.classList.add('button');
+          buttonElementSecond.textContent = 'Button 2';
+          buttonElementSecond.onclick = () => {
+            alert('Clicked!');
+          };
+
+          popupButtonsBlockElement.appendChild(buttonElementFirst);
+          popupButtonsBlockElement.appendChild(buttonElementSecond);
+
+          const buttonElement = document.createElement('button');
+          buttonElement.classList.add('button_close');
+          buttonElement.textContent = 'Primary Button';
+          buttonElement.onclick = () => {
+            alert('Clicked!');
+          };
+
+          const closeIconElement = document.createElement('button');
+          closeIconElement.classList.add('close_icon');
+          closeIconElement.onclick = () => {
+            popupWithButtons.update({
+              popup: {
+                show: false
+              }
+            });
+          };
+
+          popupButtonsElement.appendChild(popupButtonsBlockElement);
+          popupButtonsElement.appendChild(buttonElement);
+
+          popupElement.appendChild(popupElementText);
+          popupElement.appendChild(popupButtonsElement);
+          popupElement.appendChild(closeIconElement);
+
+          return popupElement;
+        };
+
+        // Initialize the map
+        map = new YMap(
+          // Pass the link to the HTMLElement of the container
+          document.getElementById('app'),
+          // Pass the map initialization parameters
+          {location: LOCATION, showScaleInCopyrights: true},
+          [
+            // Add a map scheme layer
+            new YMapDefaultSchemeLayer({}),
+            // Add a layer of geo objects to display the markers
+            new YMapDefaultFeaturesLayer({})
+          ]
+        );
+
+        popupWithImage = new YMapDefaultMarker({
+          ...FIRST_MARKER_PROPS,
+          onClick() {
+            popupWithImage.update({popup: {show: true}});
+          },
+          popup: {content: PopupWithImage, position: 'right'}
+        });
+
+        popupWithButtons = new YMapDefaultMarker({
+          ...SECOND_MARKER_PROPS,
+          onClick() {
+            popupWithButtons.update({popup: {show: true}});
+          },
+          popup: {content: PopupWithButtons, position: 'right'}
+        });
+
+        map
+          // Add a default marker with a popup window from the package to the map
+          .addChild(popupWithImage)
+          .addChild(popupWithButtons);
+
+        map.addChild(
+          // Using YMapControls you can change the position of the control
+          new YMapControls({position: 'top left'})
+            // Add the geolocation control to the map
+            .addChild(
+              new InfoMessage({
+                text: 'Click on markers'
+              })
+            )
+        );
+      }
+    </script>
+
+    <!-- prettier-ignore -->
+    <style> html, body, #app { width: 100%; height: 100%; margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; } .toolbar { position: absolute; z-index: 1000; top: 0; left: 0; display: flex; align-items: center; padding: 16px; } .toolbar a { padding: 16px; }  </style>
+    <link rel="stylesheet" href="./common.css" />
+    <link rel="stylesheet" href="../variables.css" />
+  </head>
+  <body>
+    <div id="app"></div>
+  </body>
 </html>
